@@ -6,18 +6,16 @@
   <title>SHA-256 Authentication System</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: rgba(15, 23, 42, 0.82);
-      --panel-2: rgba(30, 41, 59, 0.86);
-      --primary: #38bdf8;
-      --primary-2: #818cf8;
-      --success: #22c55e;
+      --bg: #0b0f19;
+      --panel: #111827;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --success: #10b981;
       --danger: #ef4444;
-      --warning: #f59e0b;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --border: rgba(148, 163, 184, 0.25);
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --input-bg: #030712;
     }
 
     * { box-sizing: border-box; }
@@ -25,300 +23,359 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 32rem),
-        radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.25), transparent 30rem),
-        var(--bg);
+      background-color: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      font-size: 15px; 
     }
 
     .container {
-      width: min(1180px, calc(100% - 32px));
+      width: min(1200px, calc(100% - 40px));
       margin: 0 auto;
-      padding: 40px 0;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 28px;
-      align-items: stretch;
-      margin-bottom: 28px;
+      padding: 48px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
     }
 
     .card {
-      background: linear-gradient(145deg, var(--panel), var(--panel-2));
+      background-color: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+      border-radius: 12px;
     }
 
-    .hero-main { padding: 34px; }
+    /* ==========================================================================
+       HÀNG 1: TIÊU ĐỀ LỚN NỔI BẬT (FULL CHIỀU NGANG)
+       ========================================================================== */
+    .hero-brand {
+      padding: 16px 0 8px 0;
+    }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      border-radius: 999px;
-      color: #bae6fd;
-      background: rgba(14, 165, 233, 0.12);
+      width: fit-content;
+      padding: 6px 14px;
+      border: 1px solid #0284c7;
+      border-radius: 6px;
+      color: #38bdf8;
+      background: rgba(14, 165, 233, 0.15);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     h1 {
-      margin: 18px 0 12px;
-      font-size: clamp(32px, 5vw, 58px);
-      line-height: 1.02;
-      letter-spacing: -0.04em;
-    }
-
-    .gradient-text {
-      background: linear-gradient(90deg, #38bdf8, #a78bfa, #f0abfc);
+      margin: 24px 0 16px;
+      font-size: clamp(36px, 6vw, 52px); 
+      font-weight: 850;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 60%, #38bdf8 100%);
       -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(2, 132, 199, 0.15);
     }
 
     .lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.7;
+      margin: 0 0 32px 0;
+      color: #cbd5e1; 
+      font-size: 17.5px;
+      line-height: 1.65;
+      max-width: 900px;
     }
 
     .features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 24px;
+      gap: 20px;
     }
 
     .feature {
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.54);
-      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      background: rgba(2, 132, 199, 0.04);
+      border: 1px solid rgba(2, 132, 199, 0.18);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .feature strong { display: block; margin-bottom: 6px; }
-    .feature span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .feature strong { display: block; margin-bottom: 8px; color: #ffffff; font-size: 15.5px; }
+    .feature span { color: #9ca3af; font-size: 14px; line-height: 1.5; }
 
-    .status-card { padding: 24px; }
+
+    /* ==========================================================================
+       HÀNG 2: ĐÃ ĐƯỢC CHỐT CỐ ĐỊNH CHIỀU CAO (MIN-HEIGHT)
+       ========================================================================== */
+    .middle-layout {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    /* Cố định chiều cao sàn cho khối Auth, tránh thò thụt */
+    .auth-box { 
+      padding: 32px; 
+      display: flex;
+      flex-direction: column;
+      min-height: 590px; /* Độ cao chuẩn để vừa khít form Đăng ký dài hơn */
+    }
+    
+    .auth-tabs {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Giữ các panel co giãn đồng bộ theo khung cha */
+    .auth-panel { 
+      display: none; 
+      flex-direction: column;
+      height: 100%;
+    }
+    .auth-panel.active { display: flex; }
+    
+    .auth-box h2 { margin: 0 0 6px; font-size: 22px; color: #fff; }
+    .auth-box p { margin: 0 0 24px; color: var(--muted); font-size: 14.5px; }
+
+    /* Đảm bảo ô thông báo lỗi/thành công luôn bám đáy form */
+    .auth-panel .message {
+      margin-top: auto; 
+    }
+
+    /* Khối Trạng thái phiên tự động khớp theo chiều cao cố định của khối bên cạnh */
+    .status-card { 
+      padding: 32px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .status-card h2 { margin-top: 0; font-size: 22px; color: #fff; font-weight: 700; }
+    .status-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin: 16px 0; }
+
     .status-row {
       display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 13px 0;
+      flex-direction: column;
+      gap: 6px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
+      font-size: 14.5px;
     }
     .status-row:last-child { border-bottom: 0; }
     .status-row span { color: var(--muted); }
-    .status-row strong { text-align: right; }
+    .status-row strong { color: #38bdf8; font-weight: 600; word-break: break-all; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-    }
-
-    .section { padding: 24px; }
-    .section h2 { margin: 0 0 16px; font-size: 22px; }
-    .section p { color: var(--muted); line-height: 1.6; }
-
+    /* ==========================================================================
+       FORM & CONSOLE COMPONENTS
+       ========================================================================== */
     label {
       display: block;
-      margin: 14px 0 7px;
-      color: #cbd5e1;
+      margin: 14px 0 6px;
+      color: #e2e8f0;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 500;
     }
+
+    .password-wrapper { position: relative; width: 100%; }
+    .password-wrapper input { padding-right: 55px; }
+    .toggle-password {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; font-size: 13px; font-weight: 600; color: var(--primary); user-select: none;
+    }
+    .toggle-password:hover { color: #38bdf8; }
 
     input {
-      width: 100%;
-      padding: 13px 14px;
-      color: var(--text);
-      background: rgba(15, 23, 42, 0.78);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      outline: none;
-      transition: border 160ms, box-shadow 160ms;
+      width: 100%; padding: 12px 16px; color: var(--text); background: var(--input-bg);
+      border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 15px;
+      transition: border-color 0.15s ease;
     }
-
-    input:focus {
-      border-color: rgba(56, 189, 248, 0.75);
-      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
-    }
+    input:focus { border-color: var(--primary); }
 
     button {
-      border: 0;
-      cursor: pointer;
-      border-radius: 14px;
-      padding: 13px 16px;
-      color: #06111f;
-      font-weight: 800;
-      background: linear-gradient(90deg, var(--primary), var(--primary-2));
-      transition: transform 160ms, filter 160ms;
+      border: 0; cursor: pointer; border-radius: 6px; padding: 12px 24px;
+      color: #ffffff; font-weight: 600; font-size: 15px; background: var(--primary);
+      transition: background 0.15s ease;
     }
+    button:hover { background: var(--primary-hover); }
+    button.secondary { color: var(--text); background: #1f2937; }
+    button.secondary:hover { background: #374151; }
+    button.danger { color: #fff; background: var(--danger); }
+    button.danger:hover { background: #dc2626; }
 
-    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
-    button.secondary { color: var(--text); background: rgba(148, 163, 184, 0.18); border: 1px solid var(--border); }
-    button.danger { color: #fff; background: linear-gradient(90deg, #ef4444, #f97316); }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
 
     .message {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      background: rgba(15, 23, 42, 0.5);
-      min-height: 45px;
-      white-space: pre-wrap;
+      margin-top: 18px; padding: 14px 18px; border-radius: 6px; border: 1px solid var(--border);
+      color: var(--muted); background: rgba(255, 255, 255, 0.01); font-size: 14px;
+      min-height: 46px; white-space: pre-wrap;
     }
+    .message.success { color: #34d399; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+    .message.error { color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
 
-    .message.success { color: #bbf7d0; border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.1); }
-    .message.error { color: #fecaca; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.1); }
+    .section { padding: 32px; }
+    .section h2 { margin: 0 0 8px; font-size: 22px; color: #fff; }
+    .section p { margin: 0 0 20px; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
 
-    .wide { grid-column: 1 / -1; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-    }
-
-    th, td {
-      padding: 13px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-    }
-
-    th { color: #bfdbfe; background: rgba(14, 165, 233, 0.12); }
-    td { color: #dbeafe; }
+    table { width: 100%; border-collapse: collapse; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); }
+    th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { color: #fff; background: rgba(255, 255, 255, 0.02); font-weight: 600; }
+    td { color: #d1d5db; }
     tr:last-child td { border-bottom: 0; }
-    .muted { color: var(--muted); }
+    
     .pill {
-      display: inline-flex;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      background: rgba(34, 197, 94, 0.14);
-      color: #bbf7d0;
-      border: 1px solid rgba(34, 197, 94, 0.3);
+      display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;
+      background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .api-box {
-      margin-top: 18px;
-      padding: 15px;
-      border-radius: 16px;
-      background: rgba(2, 6, 23, 0.58);
-      border: 1px dashed rgba(148, 163, 184, 0.32);
-      color: #cbd5e1;
-      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-      font-size: 13px;
-      line-height: 1.7;
+      margin-top: 16px; padding: 18px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border);
+      color: #cbd5e1; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; line-height: 1.6;
     }
 
-    @media (max-width: 860px) {
-      .hero, .grid { grid-template-columns: 1fr; }
+    @media (max-width: 960px) {
+      .middle-layout { grid-template-columns: 1fr; }
+      .auth-box { min-height: auto; }
       .features { grid-template-columns: 1fr; }
       table { display: block; overflow-x: auto; }
+      .container { padding: 24px 0; }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <section class="hero">
-      <div class="card hero-main">
-        <div class="badge">Đề tài 06 · SHA-256 · Salt · Authentication</div>
-        <h1>Hệ thống xác thực và bảo mật mật khẩu <span class="gradient-text">chuyên nghiệp</span></h1>
-        <p class="lead">
-          Demo web app Flask cho đăng ký, đăng nhập, xác thực token, danh sách người dùng ẩn dữ liệu nhạy cảm và minh họa lưu mật khẩu bằng PBKDF2-HMAC-SHA256 với salt.
-        </p>
-        <div class="features">
-          <div class="feature"><strong>Salt 256-bit</strong><span>Mỗi user có salt riêng, chống rainbow table.</span></div>
-          <div class="feature"><strong>PBKDF2-HMAC-SHA256</strong><span>Dùng SHA-256 nhiều vòng để giảm rủi ro brute-force.</span></div>
-          <div class="feature"><strong>Ẩn dữ liệu nhạy cảm</strong><span>Không hiển thị password, salt, hash trong danh sách user.</span></div>
-        </div>
-      </div>
-
-      <div class="card status-card">
-        <h2>Trạng thái phiên</h2>
-        <div class="status-row"><span>Đăng nhập</span><strong id="sessionState">Chưa đăng nhập</strong></div>
-        <div class="status-row"><span>Username</span><strong id="sessionUser">—</strong></div>
-        <div class="status-row"><span>Token</span><strong id="sessionToken">—</strong></div>
-        <div class="actions">
-          <button class="secondary" onclick="loadMe()">Tải thông tin</button>
-          <button class="danger" onclick="logout()">Đăng xuất</button>
-        </div>
+    
+    <section class="hero-brand">
+      <div class="badge">Đề tài 06 · SHA-256 · Salt · Authentication</div>
+      <h1>Hệ thống xác thực và bảo mật mật khẩu</h1>
+      <p class="lead">
+        Demo ứng dụng Flask xử lý đăng ký, đăng nhập, cấp token, danh sách tài khoản ẩn dữ liệu nhạy cảm. Minh họa quy trình lưu trữ bằng PBKDF2-HMAC-SHA256 kết hợp salt ngẫu nhiên.
+      </p>
+      <div class="features">
+        <div class="feature"><strong>Salt 256-bit độc lập</strong><span>Mỗi tài khoản sở hữu một chuỗi salt riêng biệt nhằm vô hiệu hóa Rainbow Tables.</span></div>
+        <div class="feature"><strong>PBKDF2-HMAC-SHA256</strong><span>Áp dụng cơ chế lặp băm nhiều vòng để kéo dài thời gian xử lý, giảm rủi ro Brute-force.</span></div>
+        <div class="feature"><strong>An toàn dữ liệu đầu ra</strong><span>Cam kết loại bỏ hoàn toàn password, salt, hash khỏi các API public thông thường.</span></div>
       </div>
     </section>
 
-    <section class="grid">
-      <div class="card section">
-        <h2>Đăng ký tài khoản</h2>
-        <p>Mật khẩu sẽ được kiểm tra độ mạnh, sinh salt ngẫu nhiên và lưu dưới dạng hash.</p>
-        <label for="registerUsername">Tên đăng nhập</label>
-        <input id="registerUsername" placeholder="VD: nguyenhonga" autocomplete="username" />
-        <label for="registerPassword">Mật khẩu</label>
-        <input id="registerPassword" type="password" placeholder="Tối thiểu 8 ký tự, có hoa/thường/số/ký tự đặc biệt" autocomplete="new-password" />
-        <div class="actions"><button onclick="register()">Tạo tài khoản</button></div>
-        <div id="registerMessage" class="message">Sẵn sàng đăng ký tài khoản mới.</div>
-      </div>
-
-      <div class="card section">
-        <h2>Đăng nhập</h2>
-        <p>Hệ thống băm lại mật khẩu với salt đã lưu và so sánh hash bằng constant-time comparison.</p>
-        <label for="loginUsername">Tên đăng nhập</label>
-        <input id="loginUsername" placeholder="VD: nguyenhonga" autocomplete="username" />
-        <label for="loginPassword">Mật khẩu</label>
-        <input id="loginPassword" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password" />
-        <div class="actions"><button onclick="login()">Đăng nhập</button></div>
-        <div id="loginMessage" class="message">Sau khi đăng nhập, bạn có thể xem dashboard và danh sách user.</div>
-      </div>
-
-      <div class="card section wide">
-        <h2>Dashboard người dùng</h2>
-        <div class="actions">
-          <button onclick="loadMe()">Xem thông tin của tôi</button>
-          <button class="secondary" onclick="loadUsers()">Xem danh sách người dùng</button>
+    <div class="middle-layout">
+      
+      <section class="card auth-box">
+        <div class="auth-tabs">
+          <button id="btnTabLogin" class="tab-btn active" onclick="switchAuthTab('login')">Đăng nhập</button>
+          <button id="btnTabRegister" class="tab-btn" onclick="switchAuthTab('register')">Đăng ký tài khoản</button>
         </div>
-        <div id="meMessage" class="message">Thông tin user hiện tại sẽ hiển thị tại đây.</div>
+
+        <div id="panelLogin" class="auth-panel active">
+          <div>
+            <h2>Đăng nhập hệ thống</h2>
+            <p>Xác thực bằng cách băm mật khẩu nhập vào với salt trong DB và đối sánh thời gian thực (Constant-time).</p>
+            <label for="loginUsername">Tên đăng nhập</label>
+            <input id="loginUsername" placeholder="Nhập username..." autocomplete="username" />
+            
+            <label for="loginPassword">Mật khẩu</label>
+            <div class="password-wrapper">
+              <input id="loginPassword" type="password" placeholder="Nhập mật khẩu..." autocomplete="current-password" />
+              <span class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">Hiện</span>
+            </div>
+            <div class="actions"><button onclick="login()">Xác thực</button></div>
+          </div>
+          <div id="loginMessage" class="message">Vui lòng đăng nhập để có quyền truy cập dữ liệu hệ thống.</div>
+        </div>
+
+        <div id="panelRegister" class="auth-panel">
+          <div>
+            <h2>Đăng ký tài khoản mới</h2>
+            <p>Hệ thống tự động kiểm tra độ mạnh, tạo salt ngẫu nhiên và lưu giá trị băm bảo mật.</p>
+            <label for="registerUsername">Tên đăng nhập</label>
+            <input id="registerUsername" placeholder="Nhập username..." autocomplete="username" />
+            
+            <label for="registerPassword">Mật khẩu</label>
+            <div class="password-wrapper">
+              <input id="registerPassword" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" />
+              <span class="toggle-password" onclick="togglePasswordVisibility('registerPassword', this)">Hiện</span>
+            </div>
+
+            <label for="registerConfirmPassword">Nhập lại mật khẩu</label>
+            <div class="password-wrapper">
+              <input id="registerConfirmPassword" type="password" placeholder="Xác nhận lại mật khẩu" autocomplete="new-password" />
+              <span class="toggle-password" onclick="togglePasswordVisibility('registerConfirmPassword', this)">Hiện</span>
+            </div>
+            <div class="actions"><button onclick="register()">Tạo tài khoản</button></div>
+          </div>
+          <div id="registerMessage" class="message">Sẵn sàng khởi tạo tài khoản mới.</div>
+        </div>
+      </section>
+
+      <aside class="card status-card">
+        <div>
+          <h2>Trạng thái phiên</h2>
+          <div class="status-content">
+            <div class="status-row"><span>Trạng thái hoạt động</span><strong id="sessionState">Chưa đăng nhập</strong></div>
+            <div class="status-row"><span>Tài khoản hiện hành</span><strong id="sessionUser">—</strong></div>
+            <div class="status-row"><span>JWT Token mã hóa</span><strong id="sessionToken">—</strong></div>
+          </div>
+        </div>
+        <div class="actions" style="flex-direction: column; width: 100%;">
+          <button class="secondary" style="width: 100%;" onclick="switchConsoleTab('profile'); loadMe();">Cập nhật thông tin</button>
+          <button class="danger" style="width: 100%;" onclick="logout()">Đăng xuất</button>
+        </div>
+      </aside>
+
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+      <div class="card section">
+        <h2>Hệ thống quản trị (Console)</h2>
+        <p>Chọn phương thức truy xuất dữ liệu từ các endpoints bảo mật bên dưới để hiển thị nội dung chi tiết.</p>
+        <div class="actions" style="margin-bottom: 20px;">
+          <button onclick="switchConsoleTab('profile'); loadMe();">Truy xuất Profile cá nhân</button>
+          <button class="secondary" onclick="switchConsoleTab('users'); loadUsers();">Truy xuất danh sách User</button>
+        </div>
+        
+        <div id="tabProfile" class="tab-content active">
+          <div id="meMessage" class="message">Thông tin chi tiết của phiên làm việc hiện tại sẽ xuất hiện ở đây.</div>
+        </div>
+
+        <div id="tabUsers" class="tab-content">
+          <div id="usersTable" class="api-box">Chưa có dữ liệu. Vui lòng nhấn truy xuất danh sách.</div>
+        </div>
       </div>
 
-      <div class="card section wide">
-        <h2>Danh sách người dùng ẩn thông tin nhạy cảm</h2>
-        <p>Bảng này chỉ hiển thị metadata phục vụ quản lý thử nghiệm; không trả về password, salt, hash hoặc stored_value.</p>
-        <div id="usersTable" class="api-box">Chưa tải danh sách người dùng.</div>
-      </div>
-
-      <div class="card section wide">
-        <h2>API endpoints</h2>
+      <div class="card section">
+        <h2>Danh sách Endpoint API hỗ trợ</h2>
         <div class="api-box">
-POST /api/auth/register · Đăng ký tài khoản<br />
-POST /api/auth/login · Đăng nhập và nhận token<br />
-GET /api/auth/me · Lấy thông tin user hiện tại<br />
-GET /api/users · Danh sách user ẩn thông tin nhạy cảm<br />
-POST /api/auth/change-password · Đổi mật khẩu<br />
-POST /api/auth/logout · Đăng xuất
+POST /api/auth/register · Đăng ký tài khoản mới<br />
+POST /api/auth/login · Xác thực tài khoản & cấp JWT Token<br />
+GET  /api/auth/me · Lấy thông tin cá nhân của token hiện tại<br />
+GET  /api/users · Lấy danh sách thành viên (Đã lọc bỏ dữ liệu nhạy cảm)<br />
+POST /api/auth/change-password · Cập nhật mật khẩu mới<br />
+POST /api/auth/logout · Hủy bỏ phiên làm việc
         </div>
       </div>
-    </section>
+    </div>
   </main>
 
   <script>
@@ -326,14 +383,53 @@ POST /api/auth/logout · Đăng xuất
 
     function setMessage(id, text, type = '') {
       const el = document.getElementById(id);
-      el.textContent = text;
-      el.className = `message ${type}`.trim();
+      if(el) {
+        el.textContent = text;
+        el.className = `message ${type}`.trim();
+      }
     }
 
     function updateSession(username = '') {
       document.getElementById('sessionState').textContent = token ? 'Đã đăng nhập' : 'Chưa đăng nhập';
       document.getElementById('sessionUser').textContent = username || localStorage.getItem('username') || '—';
-      document.getElementById('sessionToken').textContent = token ? `${token.slice(0, 8)}...${token.slice(-6)}` : '—';
+      document.getElementById('sessionToken').textContent = token ? `${token.slice(0, 10)}...${token.slice(-8)}` : '—';
+    }
+
+    function togglePasswordVisibility(inputId, toggleEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        toggleEl.textContent = 'Ẩn';
+      } else {
+        input.type = 'password';
+        toggleEl.textContent = 'Hiện';
+      }
+    }
+
+    function switchAuthTab(target) {
+      document.getElementById('btnTabLogin').classList.remove('active');
+      document.getElementById('btnTabRegister').classList.remove('active');
+      document.getElementById('panelLogin').classList.remove('active');
+      document.getElementById('panelRegister').classList.remove('active');
+
+      if (target === 'login') {
+        document.getElementById('btnTabLogin').classList.add('active');
+        document.getElementById('panelLogin').classList.add('active');
+      } else {
+        document.getElementById('btnTabRegister').classList.add('active');
+        document.getElementById('panelRegister').classList.add('active');
+      }
+    }
+
+    function switchConsoleTab(tabName) {
+      document.getElementById('tabProfile').classList.remove('active');
+      document.getElementById('tabUsers').classList.remove('active');
+      
+      if (tabName === 'profile') {
+        document.getElementById('tabProfile').classList.add('active');
+      } else if (tabName === 'users') {
+        document.getElementById('tabUsers').classList.add('active');
+      }
     }
 
     async function api(path, options = {}) {
@@ -347,6 +443,13 @@ POST /api/auth/logout · Đăng xuất
     async function register() {
       const username = document.getElementById('registerUsername').value.trim();
       const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        setMessage('registerMessage', 'Mật khẩu nhập lại không khớp.', 'error');
+        return;
+      }
+
       const { response, data } = await api('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({ username, password })
@@ -367,7 +470,8 @@ POST /api/auth/logout · Đăng xuất
         localStorage.setItem('authToken', token);
         localStorage.setItem('username', username);
         updateSession(username);
-        setMessage('loginMessage', `${data.message}\nToken đã được lưu trong trình duyệt demo.`, 'success');
+        setMessage('loginMessage', `${data.message}\nToken đã được đồng bộ vào hệ thống.`, 'success');
+        switchConsoleTab('profile');
         await loadMe();
       } else {
         setMessage('loginMessage', data.message || 'Đăng nhập thất bại', 'error');
@@ -376,7 +480,7 @@ POST /api/auth/logout · Đăng xuất
 
     async function loadMe() {
       if (!token) {
-        setMessage('meMessage', 'Bạn cần đăng nhập trước.', 'error');
+        setMessage('meMessage', 'Hành động yêu cầu quyền đăng nhập.', 'error');
         return;
       }
       const { response, data } = await api('/api/auth/me');
@@ -384,23 +488,23 @@ POST /api/auth/logout · Đăng xuất
         updateSession(data.user.username);
         setMessage('meMessage', JSON.stringify(data.user, null, 2), 'success');
       } else {
-        setMessage('meMessage', data.message || 'Không thể tải thông tin user', 'error');
+        setMessage('meMessage', data.message || 'Không thể truy xuất thông tin', 'error');
       }
     }
 
     async function loadUsers() {
       if (!token) {
-        document.getElementById('usersTable').textContent = 'Bạn cần đăng nhập trước.';
+        document.getElementById('usersTable').textContent = 'Hành động yêu cầu quyền đăng nhập.';
         return;
       }
       const { response, data } = await api('/api/users');
       const container = document.getElementById('usersTable');
       if (!response.ok) {
-        container.textContent = data.message || 'Không thể tải danh sách user.';
+        container.textContent = data.message || 'Không thể tải danh sách.';
         return;
       }
       if (!data.users.length) {
-        container.textContent = 'Chưa có người dùng.';
+        container.textContent = 'Hệ thống chưa có thành viên nào.';
         return;
       }
       container.innerHTML = `
@@ -439,9 +543,10 @@ POST /api/auth/logout · Đăng xuất
       localStorage.removeItem('authToken');
       localStorage.removeItem('username');
       updateSession('');
-      setMessage('loginMessage', 'Đã đăng xuất khỏi phiên demo.', 'success');
-      setMessage('meMessage', 'Thông tin user hiện tại sẽ hiển thị tại đây.');
-      document.getElementById('usersTable').textContent = 'Chưa tải danh sách người dùng.';
+      setMessage('loginMessage', 'Đã hủy phiên đăng nhập thành công.', 'success');
+      setMessage('meMessage', 'Thông tin chi tiết của phiên làm việc hiện tại sẽ xuất hiện ở đây.');
+      document.getElementById('usersTable').textContent = 'Chưa có dữ liệu. Vui lòng nhấn truy xuất danh sách.';
+      switchConsoleTab('profile');
     }
 
     function escapeHtml(value) {
