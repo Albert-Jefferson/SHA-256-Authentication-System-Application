@@ -27,7 +27,7 @@ DB_NAME = "users.db"
 @contextmanager
 def get_db_connection():
     """Context manager cho database connection."""
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=30)
     conn.row_factory = sqlite3.Row
     try:
         yield conn
@@ -75,20 +75,32 @@ def init_database():
         print(f"[*] Đã khởi tạo cơ sở dữ liệu '{DB_NAME}' thành công.")
 
 
-def log_security_event(username: str, event_type: str, ip_address: str = None, user_agent: str = None, details: dict = None):
-    """Ghi log sự kiện bảo mật."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO security_logs (username, event_type, ip_address, user_agent, details)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (
-            username,
-            event_type,
-            ip_address,
-            user_agent,
-            json.dumps(details) if details else None
-        ))
+def log_security_event(
+    username: str,
+    event_type: str,
+    ip_address: str = None,
+    user_agent: str = None,
+    details: dict = None,
+    conn: Optional[sqlite3.Connection] = None,
+):
+    """Ghi log sự kiện bảo mật. Dùng chung conn khi đang trong transaction để tránh database is locked."""
+    params = (
+        username,
+        event_type,
+        ip_address,
+        user_agent,
+        json.dumps(details) if details else None,
+    )
+    sql = '''
+        INSERT INTO security_logs (username, event_type, ip_address, user_agent, details)
+        VALUES (?, ?, ?, ?, ?)
+    '''
+    if conn is not None:
+        conn.cursor().execute(sql, params)
+        return
+
+    with get_db_connection() as own_conn:
+        own_conn.cursor().execute(sql, params)
 
 
 def register_user(username: str, password: str, ip_address: str = None, user_agent: str = None) -> Dict[str, Any]:
@@ -130,7 +142,7 @@ def register_user(username: str, password: str, ip_address: str = None, user_age
                 "user_id": user_id,
                 "hash_algorithm": hash_result.algorithm,
                 "iterations": hash_result.iterations
-            })
+            }, conn=conn)
             
             return {
                 "success": True,
@@ -196,7 +208,7 @@ def login_user(username: str, password: str, ip_address: str = None, user_agent:
             if row is None:
                 # Không tiết lộ username không tồn tại (chống user enumeration)
                 rate_limiter.record_failed(username)
-                log_security_event(username, "LOGIN_FAILED_USER_NOT_FOUND", ip_address, user_agent)
+                log_security_event(username, "LOGIN_FAILED_USER_NOT_FOUND", ip_address, user_agent, conn=conn)
                 return {
                     "success": False,
                     "message": "Sai thông tin đăng nhập",
@@ -206,7 +218,7 @@ def login_user(username: str, password: str, ip_address: str = None, user_agent:
             
             # Kiểm tra tài khoản active
             if not row["is_active"]:
-                log_security_event(username, "LOGIN_BLOCKED_INACTIVE", ip_address, user_agent)
+                log_security_event(username, "LOGIN_BLOCKED_INACTIVE", ip_address, user_agent, conn=conn)
                 return {
                     "success": False,
                     "message": "Tài khoản đã bị vô hiệu hóa",
@@ -219,7 +231,7 @@ def login_user(username: str, password: str, ip_address: str = None, user_agent:
                 locked_until = datetime.fromisoformat(row["locked_until"])
                 if datetime.now() < locked_until:
                     remaining = int((locked_until - datetime.now()).total_seconds())
-                    log_security_event(username, "LOGIN_BLOCKED_DB_LOCKED", ip_address, user_agent, {"remaining_seconds": remaining})
+                    log_security_event(username, "LOGIN_BLOCKED_DB_LOCKED", ip_address, user_agent, {"remaining_seconds": remaining}, conn=conn)
                     return {
                         "success": False,
                         "message": f"Tài khoản bị khóa. Vui lòng thử lại sau {remaining} giây",
@@ -254,7 +266,7 @@ def login_user(username: str, password: str, ip_address: str = None, user_agent:
                 log_security_event(username, "LOGIN_FAILED_WRONG_PASSWORD", ip_address, user_agent, {
                     "failed_attempts": new_failed,
                     "max_attempts": MAX_FAILED_ATTEMPTS
-                })
+                }, conn=conn)
                 
                 return {
                     "success": False,
@@ -279,13 +291,13 @@ def login_user(username: str, password: str, ip_address: str = None, user_agent:
                 cursor.execute('''
                     UPDATE users SET stored_value = ? WHERE username = ?
                 ''', (new_hash.stored_value, username))
-                log_security_event(username, "PASSWORD_REHASHED", ip_address, user_agent)
+                log_security_event(username, "PASSWORD_REHASHED", ip_address, user_agent, conn=conn)
             
             # Tạo token đơn giản (trong production nên dùng JWT)
             import uuid
             token = str(uuid.uuid4())
             
-            log_security_event(username, "LOGIN_SUCCESS", ip_address, user_agent)
+            log_security_event(username, "LOGIN_SUCCESS", ip_address, user_agent, conn=conn)
             
             return {
                 "success": True,
@@ -321,10 +333,10 @@ def change_user_password(username: str, old_password: str, new_password: str, ip
                 cursor.execute('''
                     UPDATE users SET stored_value = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?
                 ''', (result.new_stored_value, username))
-                log_security_event(username, "PASSWORD_CHANGED", ip_address)
+                log_security_event(username, "PASSWORD_CHANGED", ip_address, conn=conn)
                 return {"success": True, "message": result.message}
             else:
-                log_security_event(username, "PASSWORD_CHANGE_FAILED", ip_address, None, {"reason": result.message})
+                log_security_event(username, "PASSWORD_CHANGE_FAILED", ip_address, None, {"reason": result.message}, conn=conn)
                 return {"success": False, "message": result.message}
                 
     except Exception as e:
