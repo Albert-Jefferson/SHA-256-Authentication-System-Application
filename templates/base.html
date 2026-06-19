@@ -11,9 +11,12 @@
 
   <nav class="navbar">
     <div class="nav-container">
-      <a href="/" class="nav-brand">🔐 Đề tài 06</a>
+      <a href="/" class="nav-brand" style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2;">
+    <span style="font-size: 16px; font-weight: 700; color: #fff;">🔐 Đề tài 06: Hệ thống Xác thực Người dùng</span>
+    <span style="font-size: 12px; font-weight: 400; color: var(--muted); font-style: italic;">Ứng dụng và bảo mật mật khẩu bằng thuật toán băm SHA-256</span>
+</a>
       <div class="nav-links">
-        <a href="/" style="color: var(--text); text-decoration: none; font-size: 14.5px; margin-right: 12px;">Giới thiệu</a>
+        <a href="/" id="navIntro" style="color: var(--text); text-decoration: none; font-size: 14.5px; margin-right: 12px;">Giới thiệu</a>
         
         <div id="guestLinks" style="display: none; gap: 12px;">
           <button class="secondary" onclick="window.location.href='/login'">Đăng nhập</button>
