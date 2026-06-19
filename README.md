@@ -81,23 +81,31 @@ File `hash256_salt.py` vẫn được giữ lại để minh họa đúng công 
 
 ## Cấu trúc thư mục
 
-```text
-.
-├── app.py
-├── Database.py
-├── password_hasher.py
-├── hash256_salt.py
-├── demo.py
-├── API_endpoint.txt
-├── requirements.txt
-├── test_api.py
-├── test_password_hasher.py
-├── wordlist-demo.txt
-├── users.db
-├── templates/
-│   └── index.html
-└── KỊCH BẢN KIỂM THỬ TẤN CÔNG BRUTE‑FORCE.docx
-```
+SHA 256 Application/
+├── app.py                  
+├── Database.py             
+├── password_hasher.py     
+├── hash256_salt.py         
+├── demo.py            
+├── test_api.py             
+├── test_password_hasher.py 
+├── wordlist-demo.txt       
+├── requirements.txt        
+├── users.db                
+│
+├── static/                 
+│   ├── css/
+│   │   └── style.css       
+│   └── js/
+│       └── auth.js         
+│
+└── templates/              
+    ├── base.html          
+    ├── landing.html       
+    ├── login.html         
+    ├── register.html       
+    └── dashboard.html      
+
 
 ## Vai trò từng file
 
@@ -173,18 +181,24 @@ Nội dung minh họa:
 - Chứng minh hash không chứa mật khẩu gốc.
 - Demo brute-force/dictionary attack bằng `wordlist-demo.txt`.
 
-### `templates/index.html`
+### `templates`
 
 Giao diện web demo.
 
-Chức năng:
+Chức năng các thành phần:
+ - base.html: Khung xương giao diện nền dùng chung, tích hợp thanh điều hướng (Navbar) tự động thay đổi trạng thái hiển thị dựa trên trạng thái xác thực của người dùng.
+ - landing.html: Giao diện trang chủ giới thiệu tổng quan đề tài, mục tiêu nghiên cứu và các giải thuật công nghệ bảo mật cốt lõi.
+ - login.html: Biểu mẫu xác thực người dùng, xử lý băm mật khẩu đầu vào để gửi yêu cầu đăng nhập an toàn.
+ - register.html: Biểu mẫu khởi tạo tài khoản mới, trang bị tính năng kiểm tra trùng khớp mật khẩu nhập lại (Confirm Password).
+ - dashboard.html: Không gian làm việc quản trị nội bộ sau khi đăng nhập thành công, tích hợp bảng điều khiển dữ liệu API thời gian thực và chức năng đổi mật khẩu người dùng.
 
-- Form đăng ký.
-- Form đăng nhập.
-- Hiển thị trạng thái phiên.
-- Xem thông tin user hiện tại.
-- Xem danh sách người dùng đã ẩn hash/salt/password.
-- Logout.
+ ## `static`
+
+ Quản lý tập trung các tệp tĩnh phục vụ giao diện hệ thống.
+
+Chức năng các thành phần:
+ - css/style.css: Tệp định dạng phong cách Dark Mode công nghệ, đồng bộ hóa quy chuẩn hiển thị cho toàn bộ các trang giao diện.
+ - js/auth.js: Thư viện JavaScript cốt lõi điều phối các phiên gửi/nhận dữ liệu không đồng bộ (AJAX Fetch API) lên REST API Backend và quản lý lưu trữ mã Token.
 
 ### `test_password_hasher.py`
 
@@ -795,12 +809,13 @@ repomix-output-*.xml
 | Yêu cầu | Trạng thái |
 |---|---|
 | Nghiên cứu SHA-256/hash/salt | Có thể trình bày trong báo cáo và README |
-| Giao diện đăng ký/đăng nhập | Có `templates/index.html` |
+| Giao diện đăng ký/đăng nhập | Đầy đủ, triển khai theo kiến trúc đa trang độc lập (landing, login, register, dashboard) |
 | Đăng ký tài khoản | Có |
 | Sinh salt | Có |
 | Băm mật khẩu | Có, dùng PBKDF2-HMAC-SHA256 |
 | Lưu database | Có SQLite |
 | Đăng nhập và xác thực hash | Có |
+| Chức năng đổi mật khẩu | Đầy đủ, tích hợp tại khu vực Dashboard của người dùng |
 | Danh sách người dùng ẩn nhạy cảm | Có `/api/users` |
 | So sánh có salt/không salt | Có trong `demo.py` |
 | Brute-force demo | Có trong `demo.py` và `wordlist-demo.txt` |
