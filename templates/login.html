@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Đăng nhập hệ thống{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="card auth-form-container">
+    <h2>Đăng nhập</h2>
+    <p>Xác thực bằng cách băm mật khẩu đầu vào với chuỗi Salt lưu trong DB.</p>
+    
+    <label for="loginUsername">Tên đăng nhập</label>
+    <input id="loginUsername" placeholder="Nhập username..." autocomplete="username" />
+    
+    <label for="loginPassword">Mật khẩu</label>
+    <div class="password-wrapper">
+      <input id="loginPassword" type="password" placeholder="Nhập mật khẩu..." autocomplete="current-password" />
+      <span class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">Hiện</span>
+    </div>
+
+    <div class="actions" style="margin-top: 28px;">
+      <button style="width: 100%;" onclick="executeLogin()">Xác thực phiên đăng nhập</button>
+    </div>
+    <div id="loginMessage" class="message">Vui lòng điền thông tin tài khoản.</div>
+  </div>
+</main>
+
+<script>
+  if(localStorage.getItem('authToken')) { window.location.href = '/dashboard'; }
+
+  async function executeLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    const { response, data } = await api('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+
+    if (response.ok && data.token) {
+      token = data.token;
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('username', username);
+      setMessage('loginMessage', 'Đăng nhập thành công! Đang chuyển hướng...', 'success');
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+    } else {
+      setMessage('loginMessage', data.message || 'Đăng nhập thất bại', 'error');
+    }
+  }
+</script>
+{% endblock %}

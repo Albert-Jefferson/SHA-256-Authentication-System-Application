@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Đăng ký tài khoản mới{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="card auth-form-container">
+    <h2>Đăng ký tài khoản</h2>
+    <p>Hệ thống tự động tạo Salt và tiến hành lưu giá trị băm PBKDF2 bảo mật.</p>
+    
+    <label for="registerUsername">Tên đăng nhập</label>
+    <input id="registerUsername" placeholder="Tên tài khoản mới..." autocomplete="username" />
+    
+    <label for="registerPassword">Mật khẩu</label>
+    <div class="password-wrapper">
+      <input id="registerPassword" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" />
+      <span class="toggle-password" onclick="togglePasswordVisibility('registerPassword', this)">Hiện</span>
+    </div>
+
+    <label for="registerConfirmPassword">Nhập lại mật khẩu</label>
+    <div class="password-wrapper">
+      <input id="registerConfirmPassword" type="password" placeholder="Xác nhận lại mật khẩu" autocomplete="new-password" />
+      <span class="toggle-password" onclick="togglePasswordVisibility('registerConfirmPassword', this)">Hiện</span>
+    </div>
+
+    <div class="actions" style="margin-top: 28px;">
+      <button style="width: 100%;" onclick="executeRegister()">Khởi tạo tài khoản</button>
+    </div>
+    <div id="registerMessage" class="message">Hệ thống sẵn sàng khởi tạo dữ liệu.</div>
+  </div>
+</main>
+
+<script>
+  if(localStorage.getItem('authToken')) { window.location.href = '/dashboard'; }
+
+  async function executeRegister() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+    if (password !== confirmPassword) {
+      setMessage('registerMessage', 'Mật khẩu xác nhận không khớp.', 'error');
+      return;
+    }
+
+    const { response, data } = await api('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+    
+    if(response.ok) {
+      setMessage('registerMessage', 'Đăng ký thành công! Đang chuyển đến trang đăng nhập...', 'success');
+      setTimeout(() => { window.location.href = '/login'; }, 1500);
+    } else {
+      setMessage('registerMessage', data.message || 'Lỗi đăng ký tài khoản.', 'error');
+    }
+  }
+</script>
+{% endblock %}

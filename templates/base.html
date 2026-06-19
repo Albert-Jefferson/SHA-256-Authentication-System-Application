@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SHA-256 Auth System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_with_timestamp('static', filename='css/style.css') }}" />
+<script src="{{ url_with_timestamp('static', filename='js/auth.js') }}"></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">🔐 Đề tài 06</a>
+      <div class="nav-links">
+        <a href="/" style="color: var(--text); text-decoration: none; font-size: 14.5px; margin-right: 12px;">Giới thiệu</a>
+        
+        <div id="guestLinks" style="display: none; gap: 12px;">
+          <button class="secondary" onclick="window.location.href='/login'">Đăng nhập</button>
+          <button onclick="window.location.href='/register'">Đăng ký</button>
+        </div>
+
+        <div id="userLinks" style="display: none; gap: 16px;">
+          <div class="nav-user">👋 <span id="navUsername">—</span></div>
+          <button class="secondary" onclick="window.location.href='/dashboard'">Bảng điều khiển</button>
+          <button class="danger" onclick="logout()">Đăng xuất</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <script>
+    async function logout() {
+      if (token) {
+        await api('/api/auth/logout', { method: 'POST' });
+      }
+      token = '';
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('username');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

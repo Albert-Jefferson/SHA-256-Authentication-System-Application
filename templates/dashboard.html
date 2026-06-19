@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block title %}Bảng điều khiển quản trị nội bộ{% endblock %}
+
+{% block content %}
+<main class="container">
+  
+  <div class="dashboard-grid">
+    
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+      <div class="card section">
+        <h2>Hệ thống kiểm tra luồng dữ liệu (Console)</h2>
+        <p>Thực thi các phương thức gọi bảo mật kèm theo khóa JWT Token hiện tại để kiểm chứng cấu trúc DB.</p>
+        
+        <div class="actions" style="margin-bottom: 24px;">
+          <button onclick="loadProfileData()">Truy xuất thông tin cá nhân (Me)</button>
+          <button class="secondary" onclick="loadUsersTable()">Truy xuất danh sách thành viên</button>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <h3 style="font-size: 16px; color:#fff; margin-bottom: 8px;">Kết quả trả về từ API:</h3>
+          <div id="consoleOutput" class="api-box">Vui lòng lựa chọn hành động bên trên để kiểm tra phản hồi dữ liệu JSON thời gian thực...</div>
+        </div>
+      </div>
+
+      <div class="card section">
+        <h2>Danh sách Endpoints API được định nghĩa</h2>
+        <div class="api-box">
+POST /api/auth/register · Đăng ký tài khoản mới<br />
+POST /api/auth/login · Xác thực tài khoản & cấp JWT Token<br />
+GET  /api/auth/me · Lấy thông tin cá nhân của token hiện tại<br />
+GET  /api/users · Lấy danh sách thành viên (Đã lọc bỏ dữ liệu nhạy cảm)<br />
+POST /api/auth/change-password · Cập nhật mật khẩu mới (Mới bổ sung)<br />
+POST /api/auth/logout · Hủy bỏ phiên làm việc
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 28px;">
+      
+      <aside class="card section" style="background: rgba(2, 132, 199, 0.02); height: fit-content; padding: 24px;">
+        <h2 style="font-size: 18px; margin-bottom: 16px;">Dữ liệu phiên bảo mật</h2>
+        <div style="display:flex; flex-direction:column; gap: 14px;">
+          <div style="display:flex; flex-direction:column; gap:4px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+            <span style="color:var(--muted); font-size:13.5px;">Cơ cơ chế xác thực</span>
+            <strong style="color:#10b981;">JWT Bearer Token</strong>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+            <span style="color:var(--muted); font-size:13.5px;">Khóa Token lưu trữ hiện hành</span>
+            <strong id="dashTokenDisplay" style="color:#38bdf8; font-size:13px; word-break: break-all;">—</strong>
+          </div>
+        </div>
+      </aside>
+
+      <section class="card section" style="padding: 24px;">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">Đổi mật khẩu</h2>
+        <p style="font-size: 13.5px; margin-bottom: 16px;">Mật khẩu mới sẽ được băm PBKDF2 lại với chuỗi muối Salt mới.</p>
+        
+        <label for="oldPassword" style="margin: 10px 0 4px; font-size: 13px;">Mật khẩu hiện tại</label>
+        <div class="password-wrapper">
+          <input id="oldPassword" type="password" placeholder="Nhập mật khẩu cũ..." style="padding: 10px 14px; font-size: 14px;" />
+          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassword', this)" style="font-size: 12px; right: 12px;">Hiện</span>
+        </div>
+
+        <label for="newPassword" style="margin: 10px 0 4px; font-size: 13px;">Mật khẩu mới</label>
+        <div class="password-wrapper">
+          <input id="newPassword" type="password" placeholder="Tối thiểu 8 ký tự..." style="padding: 10px 14px; font-size: 14px;" />
+          <span class="toggle-password" onclick="togglePasswordVisibility('newPassword', this)" style="font-size: 12px; right: 12px;">Hiện</span>
+        </div>
+
+        <label for="confirmNewPassword" style="margin: 10px 0 4px; font-size: 13px;">Xác nhận mật khẩu mới</label>
+        <div class="password-wrapper">
+          <input id="confirmNewPassword" type="password" placeholder="Nhập lại mật khẩu mới..." style="padding: 10px 14px; font-size: 14px;" />
+          <span class="toggle-password" onclick="togglePasswordVisibility('confirmNewPassword', this)" style="font-size: 12px; right: 12px;">Hiện</span>
+        </div>
+
+        <button onclick="executeChangePassword()" style="width: 100%; margin-top: 18px; padding: 10px; font-size: 14px;">Cập nhật mật khẩu</button>
+        <div id="pwdMessage" class="message" style="font-size: 13px; min-height: auto; padding: 10px; margin-top: 12px; display: none;"></div>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Chặn truy cập nếu chưa đăng nhập
+  if (!localStorage.getItem('authToken')) { window.location.href = '/login'; }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const rawToken = localStorage.getItem('authToken');
+    if(rawToken) {
+      document.getElementById('dashTokenDisplay').textContent = rawToken;
+    }
+    // Tự động load trước profile cá nhân khi vừa vào trang
+    loadProfileData();
+  });
+
+  async function loadProfileData() {
+    const { response, data } = await api('/api/auth/me');
+    const output = document.getElementById('consoleOutput');
+    if (response.ok) {
+      output.textContent = JSON.stringify(data, null, 2);
+    } else {
+      output.textContent = `Error [${response.status}]: ${data.message || 'Không thể lấy dữ liệu'}`;
+    }
+  }
+
+  async function loadUsersTable() {
+    const { response, data } = await api('/api/users');
+    const output = document.getElementById('consoleOutput');
+    
+    if (!response.ok) {
+      output.textContent = `Error [${response.status}]: ${data.message || 'Không thể tải danh sách'}`;
+      return;
+    }
+    if (!data.users || !data.users.length) {
+      output.textContent = 'Hệ thống chưa ghi nhận thành viên nào.';
+      return;
+    }
+
+    output.innerHTML = `
+      <table style="margin-top: 10px;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Ngày tạo</th>
+            <th>Lần đăng nhập cuối</th>
+            <th>Số lần sai</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.users.map(user => `
+            <tr>
+              <td>${user.id}</td>
+              <td style="color:#fff; font-weight:600;">${escapeHtml(user.username)}</td>
+              <td>${user.created_at || '—'}</td>
+              <td>${user.last_login || '—'}</td>
+              <td>${user.failed_attempts}</td>
+              <td><span class="pill">${user.is_active ? 'Active' : 'Inactive'}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Hàm xử lý Đổi mật khẩu gọi lên API của Flask
+  async function executeChangePassword() {
+    const old_password = document.getElementById('oldPassword').value;
+    const new_password = document.getElementById('newPassword').value;
+    const confirm_new_password = document.getElementById('confirmNewPassword').value;
+    const msgEl = document.getElementById('pwdMessage');
+
+    msgEl.style.display = 'block';
+
+    if (!old_password || !new_password || !confirm_new_password) {
+      setMessage('pwdMessage', 'Vui lòng nhập đầy đủ các trường thông tin.', 'error');
+      return;
+    }
+
+    if (new_password !== confirm_new_password) {
+      setMessage('pwdMessage', 'Mật khẩu mới nhập lại không khớp.', 'error');
+      return;
+    }
+
+    if (old_password === new_password) {
+      setMessage('pwdMessage', 'Mật khẩu mới không được trùng mật khẩu cũ.', 'error');
+      return;
+    }
+
+    const { response, data } = await api('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ old_password, new_password })
+    });
+
+    if (response.ok) {
+      setMessage('pwdMessage', 'Đổi mật khẩu thành công!', 'success');
+      // Reset lại form nhập
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+    } else {
+      setMessage('pwdMessage', data.message || 'Đổi mật khẩu thất bại.', 'error');
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  }
+</script>
+{% endblock %}

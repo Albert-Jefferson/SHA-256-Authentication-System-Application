@@ -10,7 +10,8 @@ import os
 import re
 from datetime import datetime
 
-from flask import Flask, jsonify, render_template, request
+# Bổ sung url_for vào danh sách import để phục vụ việc tạo đường dẫn tĩnh
+from flask import Flask, jsonify, render_template, request, url_for
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -40,6 +41,28 @@ login_rate_limiter = RateLimiter()
 active_tokens: dict[str, dict[str, str | float]] = {}
 
 
+# ==========================================================================
+# CẤU HÌNH HELPER CACHE BUSTING CHO JINJA2
+# ==========================================================================
+def url_with_timestamp(endpoint, **values):
+    """Tự động thêm timestamp vào file tĩnh (CSS/JS) để trình duyệt không lưu cache cũ."""
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.static_folder, filename)
+            if os.path.exists(file_path):
+                values['v'] = int(os.stat(file_path).st_mtime)
+    return url_for(endpoint, **values)
+
+# Đăng ký hàm helper vào context của Flask Template
+@app.context_processor
+def override_url_for():
+    return dict(url_with_timestamp=url_with_timestamp)
+
+
+# ==========================================================================
+# CÁC HÀM VALIDATE VÀ XÁC THỰC HỆ THỐNG
+# ==========================================================================
 def validate_username(username: str) -> bool:
     """Validate username: 3-50 ký tự, chỉ chữ, số và dấu gạch dưới."""
     if not username or len(username) < 3 or len(username) > 50:
@@ -86,12 +109,36 @@ def serialize_user(user: dict) -> dict:
     }
 
 
+# ==========================================================================
+# CÁC ROUTE ĐIỀU HƯỚNG GIAO DIỆN (MULTI-PAGE ROUTING)
+# ==========================================================================
 @app.route("/")
 def index():
-    """Giao diện web demo cho đăng ký, đăng nhập và quản lý thử nghiệm."""
-    return render_template("index.html")
+    """1. Trang giới thiệu tổng quan đề tài và các tính năng công nghệ bảo mật."""
+    return render_template("landing.html")
 
 
+@app.route("/login")
+def login_page():
+    """2. Giao diện trang đăng nhập chuyên biệt độc lập."""
+    return render_template("login.html")
+
+
+@app.route("/register")
+def register_page():
+    """3. Giao diện trang đăng ký thành viên mới."""
+    return render_template("register.html")
+
+
+@app.route("/dashboard")
+def dashboard_page():
+    """4. Không gian làm việc quản trị nội bộ sau khi đăng nhập thành công."""
+    return render_template("dashboard.html")
+
+
+# ==========================================================================
+# HỆ THỐNG REST API ENDPOINTS (GIỮ NGUYÊN LOGIC BẢO MẬT)
+# ==========================================================================
 @app.route("/api/auth/register", methods=["POST"])
 @limiter.limit("10 per minute")
 def register():
